@@ -933,19 +933,8 @@
   <p>© 2026 <strong>VortexBlend.in</strong> — Fresh Juice. Anywhere. Anytime. | Made with ❤️ in India 🇮🇳</p>
 </footer>
 
-<!-- EmailJS SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
-  // =============================================
-  // EMAILJS SETUP — Replace these 3 values after
-  // following the setup guide in the PDF/README
-  // =============================================
-  const EMAILJS_PUBLIC_KEY  = 'mClntl3SUU_45E133';
-  const EMAILJS_SERVICE_ID  = 'service_20eifb6';
-  const EMAILJS_TEMPLATE_ID = 'template_6jakkdy';
-  // =============================================
-
-  emailjs.init(EMAILJS_PUBLIC_KEY);
+  // Web3Forms - Free, no domain restriction
 
   // Modal open/close
   function openModal() {
@@ -1010,24 +999,43 @@
     const now = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 
     try {
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-        to_email:     'myhabibi672@gmail.com',
-        order_time:   now,
-        customer_name:  name,
-        customer_phone: phone,
-        customer_address: address,
-        customer_city:  city,
-        customer_pin:   pin,
-        quantity:       qty,
-        total_amount:   `₹${499 * parseInt(qty)}`,
-        product:        'VortexBlend Portable Rechargeable Blender'
-      });
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          access_key: '6bf5ba4d-5f14-41c3-bd30-70baf77826da',
+          subject: `🛒 New VortexBlend Order from ${name}`,
+          from_name: 'VortexBlend Orders',
+          message: `
+🛒 NEW ORDER RECEIVED!
 
-      document.getElementById('orderForm').style.display = 'none';
-      document.getElementById('orderSuccess').style.display = 'block';
+⏰ Time: ${now}
+
+👤 CUSTOMER DETAILS:
+Name: ${name}
+Phone: ${phone}
+Address: ${address}
+City: ${city}
+Pincode: ${pin}
+
+📦 ORDER DETAILS:
+Product: VortexBlend Portable Rechargeable Blender
+Quantity: ${qty}
+Total: ₹${499 * parseInt(qty)}
+Payment: Cash on Delivery
+          `
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('orderForm').style.display = 'none';
+        document.getElementById('orderSuccess').style.display = 'block';
+      } else {
+        throw new Error('Failed');
+      }
     } catch (err) {
-      console.error('EmailJS error:', err);
-      alert('Order sending failed. Please check your EmailJS setup keys in the HTML file.');
+      console.error('Error:', err);
+      alert('Order sending failed. Please try again!');
       btn.textContent = '🎉 Place Order';
       btn.disabled = false;
       btn.style.opacity = '1';
